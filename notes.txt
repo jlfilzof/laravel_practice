@@ -22,4 +22,5 @@ AUTHENTICATION:
     - add to api.php:
         Route::get('/login', [AuthController::class, 'login']);
         Route::get('/register', [AuthController::class, 'register']);
+        etc
     - implement that routes in the AuthController

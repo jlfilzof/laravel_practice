@@ -8,8 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
-class AuthController extends Controller
-{
+class AuthController extends Controller {
     public function login(Request $request): JsonResponse {
         $request->validate([
             'email' => 'required|email|max:255',
@@ -23,7 +22,7 @@ class AuthController extends Controller
         }
         
         // if credentials is valid
-        $token = $user->createToken($user->name, 'Auth-Token')->plainTextToken;
+        $token = $user->createToken($user->name . 'Auth-Token')->plainTextToken;
 
         return response()->json([
             'message' => 'Login successful',
@@ -45,7 +44,7 @@ class AuthController extends Controller
         ]);
 
         if ($user) {
-            $token = $user->createToken($user->name, 'Auth-Token')->plainTextToken;
+            $token = $user->createToken($user->name . 'Auth-Token')->plainTextToken;
 
             return response()->json([
                 'message' => 'Registration successful',
@@ -55,5 +54,28 @@ class AuthController extends Controller
         else {
             return response()->json(['message' => 'Registration failed'], 500);
         } 
+    }
+
+    public function profile(Request $request) {
+        if ($request->user()) {
+            return response()->json([
+                'message' => 'Profile fetched successfully',
+                'data' => $request->user()
+            ], 200);
+        }
+        else {
+            return response()->json(['message' => 'Not Authenticated'], 401);
+        }
+    }
+
+    public function logout(Request $request): JsonResponse {
+        $user = User::where('id', $request->user()->id)->first();
+        if ($user) {
+            $user->tokens()->delete();
+            return response()->json(['message' => 'Logout successful'], 200);
+        }
+        else {
+            return response()->json(['message' => 'No user found'], 404);
+        }
     }
 }
